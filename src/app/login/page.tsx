@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Home, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -12,9 +14,65 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
+
+    let displayName = 'کاربر گرامی';
+    let userRole = 'guest';
+
+    if (form.email === 'admin@sarpanah.ir') {
+      displayName = 'مدیر سیستم';
+      userRole = 'admin';
+    } else if (form.email === 'host@sarpanah.ir') {
+      displayName = 'علی احمدی (میزبان)';
+      userRole = 'host';
+    } else {
+      // Check if user previously registered with this email or phone
+      try {
+        const saved = localStorage.getItem('sarpanah_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.email === form.email || parsed.phone === form.email) {
+            displayName = parsed.name || displayName;
+            userRole = parsed.role || userRole;
+          }
+        }
+      } catch {}
+
+      if (displayName === 'کاربر گرامی') {
+        const cleanName = form.email.split('@')[0];
+        displayName = cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'کاربر گرامی';
+      }
+    }
+
+    const userData = {
+      name: displayName,
+      email: form.email,
+      role: userRole,
+      isLoggedIn: true,
+      loginTime: new Date().toISOString(),
+    };
+
+    localStorage.setItem('sarpanah_user', JSON.stringify(userData));
+    window.dispatchEvent(new Event('authChange'));
+
+    // Attempt real backend authentication in background
+    try {
+      await fetch('http://127.0.0.1:8000/api/v1/auth/login-json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data && data.access_token) {
+            localStorage.setItem('sarpanah_token', data.access_token);
+          }
+        })
+        .catch(() => {});
+    } catch {}
+
+    await new Promise((r) => setTimeout(r, 600));
     setIsLoading(false);
-    alert('ورود تستی با موفقیت انجام شد!');
+    router.push('/');
   };
 
   return (

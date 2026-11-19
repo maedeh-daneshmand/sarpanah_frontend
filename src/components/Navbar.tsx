@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Home, Search, Heart, User, Menu, X, Compass, MapPin } from 'lucide-react';
+import { Home, Search, Heart, User, Menu, X, Compass, MapPin, LogOut, ChevronDown } from 'lucide-react';
 
 const navLinks = [
   { href: '/', label: 'خانه', icon: Home },
@@ -15,6 +15,8 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ name: string; role?: string; email?: string } | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,36 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const checkUser = () => {
+      try {
+        const stored = localStorage.getItem('sarpanah_user');
+        if (stored) {
+          setCurrentUser(JSON.parse(stored));
+        } else {
+          setCurrentUser(null);
+        }
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+    checkUser();
+    window.addEventListener('storage', checkUser);
+    window.addEventListener('authChange', checkUser);
+    return () => {
+      window.removeEventListener('storage', checkUser);
+      window.removeEventListener('authChange', checkUser);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('sarpanah_user');
+    localStorage.removeItem('sarpanah_token');
+    setCurrentUser(null);
+    setUserDropdownOpen(false);
+    window.dispatchEvent(new Event('authChange'));
+  };
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 px-4 sm:px-6 lg:px-8 pt-4 pb-2 transition-all duration-300">
@@ -76,23 +108,85 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </Link>
 
-            <Link
-              href="/login"
-              className="btn-3d-clay px-6 py-2.5 text-sm font-bold text-white shadow-md flex items-center gap-2"
-            >
-              <User className="w-4 h-4" />
-              <span>ورود / ثبت‌نام</span>
-            </Link>
+            {currentUser ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 border border-emerald-200/80 hover:border-emerald-500/50 hover:bg-emerald-50/50 transition-all shadow-md group"
+                >
+                  <div
+                    className="w-7 h-7 rounded-full text-white flex items-center justify-center text-xs font-bold shadow"
+                    style={{ background: 'hsl(var(--primary))' }}
+                  >
+                    {currentUser.name ? currentUser.name.charAt(0) : '👤'}
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-xs font-bold text-gray-900 group-hover:text-emerald-800 transition-colors">
+                      {currentUser.name}
+                    </span>
+                    <span className="text-[10px] text-emerald-600 font-semibold -mt-0.5">
+                      {currentUser.role === 'host' ? 'پنل میزبان' : 'پنل مسافر'}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-800 transition-colors" />
+                </button>
+
+                {/* Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 animate-fade-up">
+                    <div className="px-3 py-2 border-b border-gray-100 mb-1">
+                      <p className="text-xs font-bold text-gray-900">{currentUser.name}</p>
+                      {currentUser.email && (
+                        <p className="text-[11px] text-gray-400 truncate">{currentUser.email}</p>
+                      )}
+                    </div>
+                    <Link
+                      href="/properties"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-emerald-50 rounded-xl transition-colors"
+                    >
+                      <Compass className="w-4 h-4 text-emerald-700" />
+                      <span>رزروهای من</span>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors mt-1 text-right"
+                    >
+                      <LogOut className="w-4 h-4 text-red-500" />
+                      <span>خروج از حساب</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="btn-3d-clay px-6 py-2.5 text-sm font-bold text-white shadow-md flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                <span>ورود / ثبت‌نام</span>
+              </Link>
+            )}
           </div>
 
           {/* Mobile hamburger */}
           <div className="flex sm:hidden items-center gap-2">
-            <Link
-              href="/login"
-              className="btn-3d-clay px-3.5 py-1.5 text-xs font-bold text-white shadow-sm"
-            >
-              ورود
-            </Link>
+            {currentUser ? (
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-900 flex items-center gap-1.5"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{currentUser.name}</span>
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="btn-3d-clay px-3.5 py-1.5 text-xs font-bold text-white shadow-sm"
+              >
+                ورود
+              </Link>
+            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-full text-gray-700 hover:bg-gray-100"
@@ -107,6 +201,30 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="sm:hidden mt-2 p-4 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-100 animate-fade-up">
             <div className="flex flex-col gap-1">
+              {currentUser && (
+                <div className="p-3 mb-2 bg-emerald-50/70 border border-emerald-100 rounded-2xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 rounded-full text-white flex items-center justify-center text-xs font-bold shadow"
+                      style={{ background: 'hsl(var(--primary))' }}
+                    >
+                      {currentUser.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-900">{currentUser.name}</p>
+                      <p className="text-[10px] text-emerald-700 font-medium">وارد پنل کاربری شده‌اید</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg text-xs"
+                    title="خروج"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 return (
@@ -122,20 +240,35 @@ export default function Navbar() {
                 );
               })}
               <div className="pt-3 mt-2 border-t border-gray-100 flex gap-2">
-                <Link
-                  href="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="btn-3d-clay flex-1 py-2.5 text-center text-xs font-bold text-white rounded-xl"
-                >
-                  ثبت‌نام کاربر جدید
-                </Link>
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 py-2.5 text-center text-xs font-semibold text-gray-700 border border-gray-200 rounded-xl"
-                >
-                  ورود
-                </Link>
+                {currentUser ? (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-2.5 text-center text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>خروج از حساب کاربری</span>
+                  </button>
+                ) : (
+                  <>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="btn-3d-clay flex-1 py-2.5 text-center text-xs font-bold text-white rounded-xl"
+                    >
+                      ثبت‌نام کاربر جدید
+                    </Link>
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 py-2.5 text-center text-xs font-semibold text-gray-700 border border-gray-200 rounded-xl"
+                    >
+                      ورود
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

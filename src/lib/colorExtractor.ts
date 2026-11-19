@@ -26,17 +26,17 @@ export const regionColorPresets: Record<string, ThemeColors> = {
     accent: '138 30% 88%',
     name: 'گیلان سرسبز (سبز جنگلی)',
   },
-  // Mazandaran (Coastal Pine & Caspian Breeze)
+  // Mazandaran & Caspian Coast (Vibrant Azure Ocean Blue)
   mazandaran: {
-    hue: 155,
-    bgFrom: '#ebf5f1',
-    bgTo: '#cfebdf',
-    primary: '155 46% 30%',
-    primaryRgb: '41, 112, 83',
-    secondary: '35 60% 45%',
-    secondaryRgb: '184, 114, 46',
-    accent: '155 32% 88%',
-    name: 'مازندران (کاج و دریا)',
+    hue: 205,
+    bgFrom: '#f0f7fc',
+    bgTo: '#d4ebf9',
+    primary: '205 85% 36%',
+    primaryRgb: '14, 116, 196',
+    secondary: '38 92% 48%',
+    secondaryRgb: '238, 142, 19',
+    accent: '205 75% 90%',
+    name: 'مازندران و سواحل کاسپین (آبی نیلگون دریایی)',
   },
   // Isfahan (Turquoise Blue & Historic Clay)
   isfahan: {
@@ -178,6 +178,10 @@ export async function extractDominantHueFromImage(imageUrl: string): Promise<num
   return new Promise((resolve) => {
     // Fast keyword detection first
     const lower = imageUrl.toLowerCase();
+    if (lower.includes('mazandaran') || lower.includes('coast') || lower.includes('beach') || lower.includes('sea') || lower.includes('caspian')) {
+      resolve(205);
+      return;
+    }
     if (lower.includes('gilan') || lower.includes('forest') || lower.includes('eco')) {
       resolve(138);
       return;

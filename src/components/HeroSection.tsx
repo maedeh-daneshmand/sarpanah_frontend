@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Calendar, Users, Sparkles, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -15,6 +15,29 @@ export default function HeroSection() {
   const [checkIn, setCheckIn] = useState<string>('');
   const [checkOut, setCheckOut] = useState<string>('');
   const [guests, setGuests] = useState<number>(2);
+  const [currentUser, setCurrentUser] = useState<{ name: string; email?: string } | null>(null);
+
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        const saved = localStorage.getItem('sarpanah_user');
+        if (saved) {
+          setCurrentUser(JSON.parse(saved));
+        } else {
+          setCurrentUser(null);
+        }
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+    loadUser();
+    window.addEventListener('storage', loadUser);
+    window.addEventListener('authChange', loadUser);
+    return () => {
+      window.removeEventListener('storage', loadUser);
+      window.removeEventListener('authChange', loadUser);
+    };
+  }, []);
 
   // Hook dynamically applies dominant color of the active region/photo to the whole site background!
   const { updateTheme } = useColorTheme(activeRegionPreset);
@@ -32,10 +55,10 @@ export default function HeroSection() {
     router.push(`/properties?${params.toString()}`);
   };
 
-  // Scenic background images matching "عکس اصلی"
+  // Scenic background images matching iconic regions
   const heroBackgrounds: Record<string, string> = {
     gilan: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=1920&q=85', // Eco wooden cabin in green lawn & hills
-    mazandaran: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=1920&q=85', // Lush forest villa
+    mazandaran: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=85', // Gorgeous coastal beach & azure ocean blue
     isfahan: 'https://images.unsplash.com/photo-1565008576549-57569a49371d?w=1920&q=85', // Historic turquoise & architecture
     shiraz: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=85', // Boutique garden villa
     desert: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=1920&q=85', // Golden desert lodge
@@ -105,6 +128,11 @@ export default function HeroSection() {
 
           {/* Hero Center Text (Find Eco-Friendly Homes Easily - عکس اصلی) */}
           <div className="relative z-10 max-w-2xl my-8">
+            {currentUser && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white text-xs sm:text-sm font-bold mb-3 shadow-md animate-fade-up">
+                <span>👋 {currentUser.name} عزیز، به پنل سرپناه خوش آمدید!</span>
+              </div>
+            )}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-md mb-4">
               اقامتگاه‌های رویایی و بوم‌گردی در{' '}
               <span className="text-green-300 underline decoration-green-400/50 decoration-wavy decoration-2">
@@ -131,16 +159,16 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Bottom Region Theme Selector (دکمه‌های انتخاب پالت رنگی مناطق) */}
+          {/* Bottom Region Atmosphere Selector (دکمه‌های انتخاب اقلیم و موقعیت مکانی) */}
           <div className="relative z-10 pt-4 border-t border-white/20 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm text-white/90">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-yellow-300 animate-spin-slow" />
-              <span className="font-medium">تغییر تم زنده با اقلیم‌های ایران:</span>
+              <span className="font-medium">رنگ‌آمیزی متناسب با موقعیت مکانی و اقلیم:</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {[
                 { key: 'gilan', label: '🌿 گیلان (جنگلی)' },
-                { key: 'mazandaran', label: '🌊 مازندران (ساحلی)' },
+                { key: 'mazandaran', label: '🌊 مازندران (ساحلی و آبی دریا)' },
                 { key: 'isfahan', label: '🏛️ اصفهان (فیروزه‌ای)' },
                 { key: 'shiraz', label: '🌸 شیراز (باغ و گل)' },
                 { key: 'desert', label: '🏜️ کویر مرنجاب (طلایی)' },

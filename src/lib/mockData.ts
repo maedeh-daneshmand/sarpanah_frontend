@@ -103,9 +103,9 @@ export const locations: Location[] = [
     id: 6,
     name: 'مازندران',
     province: 'مازندران',
-    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
     propertyCount: 278,
-    description: 'ساحل و کوه در کنار هم',
+    description: 'سواحل نیلگون و دریای آبی کاسپین',
   },
   {
     id: 7,

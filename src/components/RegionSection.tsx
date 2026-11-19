@@ -36,14 +36,14 @@ export default function RegionSection() {
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-3 bg-white/80 backdrop-blur shadow-sm border border-gray-100">
               <Sparkles className="w-4 h-4 text-amber-500 animate-spin-slow" />
-              <span>پالت رنگی زنده اقلیم‌های ایران</span>
+              <span>رنگ‌آمیزی زنده بر اساس طبیعت و اقلیم</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
               مقاصد محبوب و{' '}
               <span style={{ color: 'hsl(var(--primary))' }}>اقلیم‌های رنگارنگ</span>
             </h2>
             <p className="text-gray-600 text-sm sm:text-base mt-2 max-w-xl">
-              با حرکت ماوس روی هر منطقه، تم رنگی کل صفحه متناسب با رنگ طبیعی عکس آن منطقه دگرگون می‌شود.
+              با حرکت ماوس روی هر منطقه، رنگ‌آمیزی کل صفحه متناسب با طبیعت و آب‌وهوای آن منطقه هماهنگ می‌شود.
             </p>
           </div>
 
@@ -93,7 +93,7 @@ export default function RegionSection() {
                   {/* Active Color Pulse Indicator */}
                   {isActive && (
                     <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-green-500 text-white text-[10px] font-bold shadow-lg animate-pulse">
-                      تم فعال
+                      اقلیم انتخابی
                     </div>
                   )}
 
