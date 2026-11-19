@@ -3,6 +3,7 @@ import HeroSection from '@/components/HeroSection';
 import WelcomeSection from '@/components/WelcomeSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import RegionSection from '@/components/RegionSection';
+import GroupTravelSection from '@/components/GroupTravelSection';
 import FeaturedProperties from '@/components/FeaturedProperties';
 import HowItWorks from '@/components/HowItWorks';
 import Testimonials from '@/components/Testimonials';
@@ -17,6 +18,7 @@ export default function HomePage() {
       <WelcomeSection />
       <FeaturesSection />
       <RegionSection />
+      <GroupTravelSection />
       <FeaturedProperties />
       <HowItWorks />
       <Testimonials />

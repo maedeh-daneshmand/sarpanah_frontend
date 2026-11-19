@@ -7,13 +7,14 @@ import { Search, MapPin, Calendar, Users, Sparkles, ArrowLeft, ShieldCheck } fro
 import { locations } from '@/lib/mockData';
 import { useColorTheme } from '@/hooks/useColorTheme';
 import { regionColorPresets } from '@/lib/colorExtractor';
+import PersianDatePicker from '@/components/ui/PersianDatePicker';
 
 export default function HeroSection() {
   const router = useRouter();
   const [activeRegionPreset, setActiveRegionPreset] = useState<string>('gilan');
   const [cityId, setCityId] = useState<string>('');
-  const [checkIn, setCheckIn] = useState<string>('');
-  const [checkOut, setCheckOut] = useState<string>('');
+  const [checkIn, setCheckIn] = useState<string>('۲۲ آبان ۱۴۰۴');
+  const [checkOut, setCheckOut] = useState<string>('۲۵ آبان ۱۴۰۴');
   const [guests, setGuests] = useState<number>(2);
   const [currentUser, setCurrentUser] = useState<{ name: string; email?: string } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -169,11 +170,11 @@ export default function HeroSection() {
             </div>
             <div className="flex flex-wrap gap-2">
               {[
-                { key: 'gilan', label: '🌿 گیلان (جنگلی)' },
-                { key: 'mazandaran', label: '🌊 مازندران (ساحلی و آبی دریا)' },
-                { key: 'isfahan', label: '🏛️ اصفهان (فیروزه‌ای)' },
-                { key: 'shiraz', label: '🌸 شیراز (باغ و گل)' },
-                { key: 'desert', label: '🏜️ کویر مرنجاب (طلایی)' },
+                { key: 'gilan', label: '🌿 گیلان' },
+                { key: 'mazandaran', label: '🌊 مازندران' },
+                { key: 'isfahan', label: '🏛️ اصفهان' },
+                { key: 'shiraz', label: '🌸 شیراز' },
+                { key: 'desert', label: '🏜️ کویر مرنجاب' },
               ].map((reg) => (
                 <button
                   key={reg.key}
@@ -229,29 +230,19 @@ export default function HeroSection() {
               <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0 shadow-sm border border-amber-100">
                 <Calendar className="w-5 h-5" />
               </div>
-              <div className="flex-1 grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-400 mb-0.5">
-                    تاریخ ورود
-                  </label>
-                  <input
-                    type="date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-gray-800 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-400 mb-0.5">
-                    تاریخ خروج
-                  </label>
-                  <input
-                    type="date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full bg-transparent text-xs sm:text-sm font-semibold text-gray-800 focus:outline-none"
-                  />
-                </div>
+              <div className="flex-1 grid grid-cols-2 gap-3">
+                <PersianDatePicker
+                  label="تاریخ ورود"
+                  value={checkIn}
+                  onChange={setCheckIn}
+                  placeholder="انتخاب ورود"
+                />
+                <PersianDatePicker
+                  label="تاریخ خروج"
+                  value={checkOut}
+                  onChange={setCheckOut}
+                  placeholder="انتخاب خروج"
+                />
               </div>
             </div>
 

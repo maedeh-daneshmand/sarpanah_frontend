@@ -5,7 +5,7 @@ import { ArrowLeft, CheckCircle2, Leaf, Shield, Sparkles } from 'lucide-react';
 
 export default function WelcomeSection() {
   return (
-    <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 transition-colors duration-1000">
+    <section id="why-us" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 transition-colors duration-1000">
       <div className="max-w-7xl mx-auto">
         {/* Container matching "Welcome on Treopps?" in نمونه اصلی */}
         <div className="card-clay p-6 sm:p-10 lg:p-14 bg-white/95">

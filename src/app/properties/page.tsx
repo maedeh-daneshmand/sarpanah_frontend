@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -51,14 +51,70 @@ function PropertiesListContent() {
     searchQuery: '',
   });
 
-  const [wishlist, setWishlist] = useState<number[]>([1, 4]);
+  const [wishlist, setWishlist] = useState<number[]>([]);
+
+  useEffect(() => {
+    const loadWishlist = () => {
+      try {
+        const stored = localStorage.getItem('sarpanah_wishlist');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setWishlist(parsed.map((item: any) => item.id));
+            return;
+          }
+        }
+        setWishlist([]);
+      } catch {
+        setWishlist([]);
+      }
+    };
+
+    loadWishlist();
+    window.addEventListener('storage', loadWishlist);
+    window.addEventListener('wishlistChange', loadWishlist);
+    return () => {
+      window.removeEventListener('storage', loadWishlist);
+      window.removeEventListener('wishlistChange', loadWishlist);
+    };
+  }, []);
 
   const toggleWishlist = (id: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+
+    try {
+      const stored = localStorage.getItem('sarpanah_wishlist');
+      const list = stored ? JSON.parse(stored) : [];
+      const itemToToggle = properties.find((p) => p.id === id);
+      if (!itemToToggle) return;
+
+      let updated;
+      if (list.some((item: any) => item.id === id)) {
+        updated = list.filter((item: any) => item.id !== id);
+      } else {
+        updated = [
+          ...list,
+          {
+            id: itemToToggle.id,
+            title: itemToToggle.title,
+            location: itemToToggle.cityName,
+            address: itemToToggle.address,
+            pricePerNight: itemToToggle.pricePerNight,
+            rating: itemToToggle.rating,
+            reviewsCount: itemToToggle.reviewCount,
+            image: itemToToggle.images[0],
+            bedrooms: itemToToggle.bedrooms,
+            maxGuests: itemToToggle.maxGuests,
+            typeName: itemToToggle.typeName,
+          },
+        ];
+      }
+
+      localStorage.setItem('sarpanah_wishlist', JSON.stringify(updated));
+      setWishlist(updated.map((item: any) => item.id));
+      window.dispatchEvent(new Event('wishlistChange'));
+    } catch {}
   };
 
   const toggleAmenity = useCallback((id: number) => {

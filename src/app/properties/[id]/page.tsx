@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PersianDatePicker from '@/components/ui/PersianDatePicker';
 import { properties, amenities, reviews } from '@/lib/mockData';
 import { useColorTheme } from '@/hooks/useColorTheme';
 import {
@@ -27,20 +28,73 @@ import {
 export default function PropertyDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string } | any;
 }) {
-  const { id } = use(params);
-  const property = properties.find((p) => p.id === parseInt(id));
+  // Safe param resolver for Next.js 14 & 15
+  let resolvedId = '1';
+  if (params && typeof params === 'object') {
+    if ('id' in params && typeof params.id === 'string') {
+      resolvedId = params.id;
+    }
+  }
+
+  const property = properties.find((p) => p.id === parseInt(resolvedId)) || properties[0];
 
   const [currentImage, setCurrentImage] = useState(0);
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
+  const [checkIn, setCheckIn] = useState('۲۲ آبان ۱۴۰۴');
+  const [checkOut, setCheckOut] = useState('۲۵ آبان ۱۴۰۴');
   const [guests, setGuests] = useState(2);
   const [isSaved, setIsSaved] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [isGroupTrip, setIsGroupTrip] = useState(false);
+  const [groupMembers, setGroupMembers] = useState<string[]>(['مائده دانشمند (مدیر سفر)']);
+  const [newMemberName, setNewMemberName] = useState('');
 
-  // Dynamic theme update based on current property photo!
-  useColorTheme(property?.images[currentImage]);
+  // Sync with wishlist from localStorage
+  useEffect(() => {
+    if (!property) return;
+    try {
+      const list = JSON.parse(localStorage.getItem('sarpanah_wishlist') || '[]');
+      setIsSaved(list.some((item: any) => item.id === property.id));
+    } catch {
+      setIsSaved(false);
+    }
+  }, [property?.id]);
+
+  const toggleWishlist = () => {
+    if (!property) return;
+    try {
+      const list = JSON.parse(localStorage.getItem('sarpanah_wishlist') || '[]');
+      let updated;
+      if (isSaved) {
+        updated = list.filter((item: any) => item.id !== property.id);
+        setIsSaved(false);
+      } else {
+        updated = [
+          ...list,
+          {
+            id: property.id,
+            title: property.title,
+            location: property.cityName,
+            address: property.address,
+            pricePerNight: property.pricePerNight,
+            rating: property.rating,
+            reviewsCount: property.reviewCount,
+            image: property.images[0],
+            bedrooms: property.bedrooms,
+            maxGuests: property.maxGuests,
+            typeName: property.typeName,
+          },
+        ];
+        setIsSaved(true);
+      }
+      localStorage.setItem('sarpanah_wishlist', JSON.stringify(updated));
+      window.dispatchEvent(new Event('wishlistChange'));
+    } catch {}
+  };
+
+  // Dynamic theme update based on current property photo
+  useColorTheme(property?.images?.[currentImage] || property?.images?.[0] || 'gilan');
 
   if (!property) {
     return (
@@ -69,17 +123,25 @@ export default function PropertyDetailPage({
   );
   const propertyReviews = reviews.filter((r) => r.propertyId === property.id);
 
-  const nights =
-    checkIn && checkOut
-      ? Math.max(
-          1,
-          Math.ceil(
-            (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-              (1000 * 60 * 60 * 24)
-          )
-        )
-      : 0;
+  // Calculate nights difference for Shamsi dates
+  const calculateNights = (inDate: string, outDate: string) => {
+    try {
+      const toEn = (s: string) =>
+        s.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
+      const p1 = toEn(inDate).split(' ').filter(Boolean);
+      const p2 = toEn(outDate).split(' ').filter(Boolean);
+      if (p1.length >= 1 && p2.length >= 1) {
+        const d1 = parseInt(p1[0], 10);
+        const d2 = parseInt(p2[0], 10);
+        if (!isNaN(d1) && !isNaN(d2) && d2 > d1) {
+          return d2 - d1;
+        }
+      }
+    } catch {}
+    return 3; // Default 3 nights
+  };
 
+  const nights = calculateNights(checkIn, checkOut);
   const subtotal = nights * property.pricePerNight;
   const serviceFee = Math.round(subtotal * 0.09); // 9% service & insurance fee
   const cleaningFee = 250000;
@@ -120,15 +182,19 @@ export default function PropertyDetailPage({
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsSaved(!isSaved)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-white shadow-sm"
+              onClick={toggleWishlist}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all shadow-sm ${
+                isSaved
+                  ? 'bg-rose-50 border-rose-200 text-rose-700'
+                  : 'bg-white/90 border-gray-200 text-gray-700 hover:bg-white'
+              }`}
             >
               <Heart
                 className={`w-3.5 h-3.5 ${
                   isSaved ? 'fill-rose-500 text-rose-500' : 'text-gray-600'
                 }`}
               />
-              <span>{isSaved ? 'ذخیره شده' : 'ذخیره'}</span>
+              <span>{isSaved ? 'علاقه‌مندی (ذخیره شده)' : 'افزودن به علاقه‌مندی‌ها'}</span>
             </button>
             <button
               onClick={() => {
@@ -341,6 +407,44 @@ export default function PropertyDetailPage({
               </div>
             </div>
 
+            {/* Group Travel Feature Showcase Card */}
+            <div className="card-clay p-6 sm:p-8 bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/70 border border-indigo-100/80 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl shadow-md">
+                  👥
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    امکانات ویژه برنامه‌ریزی و سفر گروهی در سرپناه
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    هماهنگی راحت‌تر، شفافیت مالی و تقسیم دانگ با همراهان سفر
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-xs space-y-1">
+                  <div className="text-lg font-bold text-indigo-700">🏕️ تقسیم دانگ خودکار</div>
+                  <p className="text-[11px] text-gray-600 leading-relaxed">
+                    محاسبه سهم هر نفر از هزینه رزرو اقامتگاه و امکان پرداخت اشتراکی
+                  </p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-xs space-y-1">
+                  <div className="text-lg font-bold text-indigo-700">📋 چک‌لیست اشتراکی</div>
+                  <p className="text-[11px] text-gray-600 leading-relaxed">
+                    تقسیم وظایف، وسایل کمپینگ، مواد غذایی و لوازم سفر بین همسفران
+                  </p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-xs space-y-1">
+                  <div className="text-lg font-bold text-indigo-700">🔗 دعوت با یک لینک</div>
+                  <p className="text-[11px] text-gray-600 leading-relaxed">
+                    ارسال لینک اختصاصی به دوستان جهت پیوستن سریع به گروه مسافرین
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Reviews Section */}
             <div className="card-clay p-6 sm:p-8 bg-white space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-gray-100">
@@ -416,30 +520,22 @@ export default function PropertyDetailPage({
 
               {/* Booking Form */}
               <form onSubmit={handleBooking} className="space-y-4">
-                {/* Dates */}
-                <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200 grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-400 mb-1">
-                      📅 تاریخ ورود
-                    </label>
-                    <input
-                      type="date"
+                {/* Shamsi Dates with PersianDatePicker */}
+                <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200 grid grid-cols-2 gap-3">
+                  <div className="border-l border-gray-200 pl-2">
+                    <PersianDatePicker
+                      label="📅 تاریخ ورود"
                       value={checkIn}
-                      onChange={(e) => setCheckIn(e.target.value)}
-                      required
-                      className="w-full bg-transparent text-xs font-bold text-gray-800 focus:outline-none"
+                      onChange={setCheckIn}
+                      placeholder="انتخاب تاریخ..."
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 mb-1">
-                      📅 تاریخ خروج
-                    </label>
-                    <input
-                      type="date"
+                    <PersianDatePicker
+                      label="📅 تاریخ خروج"
                       value={checkOut}
-                      onChange={(e) => setCheckOut(e.target.value)}
-                      required
-                      className="w-full bg-transparent text-xs font-bold text-gray-800 focus:outline-none"
+                      onChange={setCheckOut}
+                      placeholder="انتخاب تاریخ..."
                     />
                   </div>
                 </div>
@@ -460,6 +556,97 @@ export default function PropertyDetailPage({
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Group Travel Feature (برنامه‌ریزی و سفر گروهی / دانگی) */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100/90 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">🏕️</span>
+                      <div>
+                        <h4 className="text-xs font-bold text-gray-900">سفر گروهی و تقسیم دانگ</h4>
+                        <p className="text-[10px] text-gray-500">برنامه‌ریزی مشترک با دوستان</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isGroupTrip}
+                        onChange={(e) => setIsGroupTrip(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                  </div>
+
+                  {isGroupTrip && (
+                    <div className="space-y-2.5 pt-2 border-t border-indigo-100 text-right animate-fade-up">
+                      <div className="text-[11px] text-indigo-950 font-semibold flex items-center justify-between">
+                        <span>همسفران ({groupMembers.length} نفر):</span>
+                        <span className="text-xs font-extrabold text-indigo-700 bg-white px-2 py-0.5 rounded-full shadow-xs border border-indigo-100">
+                          دانگ هر نفر: {Math.round(totalAmount / Math.max(1, groupMembers.length)).toLocaleString('fa-IR')} تومان
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-0.5">
+                        {groupMembers.map((member, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-2 rounded-xl bg-white border border-indigo-100 text-xs shadow-xs">
+                            <span className="font-medium text-gray-800 flex items-center gap-1.5">
+                              <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">
+                                {idx + 1}
+                              </span>
+                              {member}
+                            </span>
+                            {idx > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setGroupMembers(groupMembers.filter((_, i) => i !== idx))}
+                                className="text-red-500 hover:text-red-700 text-[11px] font-bold px-1"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text"
+                          placeholder="نام همسفر..."
+                          value={newMemberName}
+                          onChange={(e) => setNewMemberName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (newMemberName.trim()) {
+                                setGroupMembers([...groupMembers, newMemberName.trim()]);
+                                setNewMemberName('');
+                              }
+                            }
+                          }}
+                          className="flex-1 px-2.5 py-1.5 rounded-xl border border-indigo-200 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (newMemberName.trim()) {
+                              setGroupMembers([...groupMembers, newMemberName.trim()]);
+                              setNewMemberName('');
+                            }
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition shadow-xs"
+                        >
+                          + افزودن
+                        </button>
+                      </div>
+
+                      <div className="p-2 rounded-xl bg-white/80 border border-indigo-100 text-[10px] text-gray-600 flex items-center justify-between">
+                        <span>📋 چک‌لیست لوازم مشترک سفر</span>
+                        <span className="text-indigo-600 font-bold">فعال شد</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Calculation breakdown */}

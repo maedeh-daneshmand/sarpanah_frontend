@@ -39,7 +39,7 @@ export default function LoginPage() {
 
       if (displayName === 'کاربر گرامی') {
         const cleanName = form.email.split('@')[0];
-        displayName = cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'کاربر گرامی';
+        displayName = cleanName && !/^\d+$/.test(cleanName) ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'مائده دانشمند';
       }
     }
 

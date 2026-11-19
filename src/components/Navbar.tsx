@@ -7,9 +7,9 @@ import { Home, Search, Heart, User, Menu, X, Compass, MapPin, LogOut, ChevronDow
 const navLinks = [
   { href: '/', label: 'خانه', icon: Home },
   { href: '/properties', label: 'اقامتگاه‌ها', icon: Compass },
-  { href: '#regions', label: 'مناطق گردشگری', icon: MapPin },
-  { href: '#features', label: 'امکانات', icon: Heart },
-  { href: '#why-us', label: 'درباره ما', icon: User },
+  { href: '/#regions', label: 'مناطق گردشگری', icon: MapPin },
+  { href: '/#features', label: 'امکانات', icon: Heart },
+  { href: '/#why-us', label: 'درباره ما', icon: User },
 ];
 
 export default function Navbar() {
@@ -17,6 +17,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; role?: string; email?: string } | null>(null);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -49,6 +50,38 @@ export default function Navbar() {
       window.removeEventListener('authChange', checkUser);
     };
   }, []);
+
+  useEffect(() => {
+    const updateWishlist = () => {
+      try {
+        const stored = localStorage.getItem('sarpanah_wishlist');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setWishlistCount(Array.isArray(parsed) ? parsed.length : 0);
+        } else {
+          setWishlistCount(0);
+        }
+      } catch {
+        setWishlistCount(0);
+      }
+    };
+    updateWishlist();
+    window.addEventListener('storage', updateWishlist);
+    window.addEventListener('wishlistChange', updateWishlist);
+    return () => {
+      window.removeEventListener('storage', updateWishlist);
+      window.removeEventListener('wishlistChange', updateWishlist);
+    };
+  }, []);
+
+  const getDisplayName = (user: { name?: string; role?: string; email?: string } | null) => {
+    if (!user || !user.name) return 'مائده دانشمند';
+    const clean = user.name.trim();
+    if (/^(\+98|0)?9\d{9}$/.test(clean) || /^[0-9+ ]{8,}$/.test(clean)) {
+      return 'مائده دانشمند';
+    }
+    return clean;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('sarpanah_user');
@@ -105,9 +138,22 @@ export default function Navbar() {
             <Link
               href="/properties"
               className="w-10 h-10 rounded-full flex items-center justify-center text-gray-600 hover:text-green-800 hover:bg-gray-100 transition-colors"
-              title="جستجوی سریع"
+              title="جستجوی سریع اقامتگاه‌ها"
             >
               <Search className="w-5 h-5" />
+            </Link>
+
+            <Link
+              href="/wishlist"
+              className="relative w-10 h-10 rounded-full flex items-center justify-center text-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+              title="علاقه‌مندی‌ها"
+            >
+              <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-rose-500 text-rose-500' : 'text-gray-600 hover:text-rose-500'}`} />
+              {isMounted && wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
             {isMounted && currentUser ? (
@@ -120,11 +166,11 @@ export default function Navbar() {
                     className="w-7 h-7 rounded-full text-white flex items-center justify-center text-xs font-bold shadow"
                     style={{ background: 'hsl(var(--primary))' }}
                   >
-                    {currentUser.name ? currentUser.name.charAt(0) : '👤'}
+                    {getDisplayName(currentUser).charAt(0)}
                   </div>
                   <div className="flex flex-col text-right">
                     <span className="text-xs font-bold text-gray-900 group-hover:text-emerald-800 transition-colors">
-                      {currentUser.name}
+                      {getDisplayName(currentUser)}
                     </span>
                     <span className="text-[10px] text-emerald-600 font-semibold -mt-0.5">
                       {currentUser.role === 'host' ? 'پنل میزبان' : 'پنل مسافر'}
@@ -135,9 +181,9 @@ export default function Navbar() {
 
                 {/* Dropdown Menu */}
                 {userDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 animate-fade-up">
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 animate-fade-up">
                     <div className="px-3 py-2 border-b border-gray-100 mb-1">
-                      <p className="text-xs font-bold text-gray-900">{currentUser.name}</p>
+                      <p className="text-xs font-bold text-gray-900">{getDisplayName(currentUser)}</p>
                       {currentUser.email && (
                         <p className="text-[11px] text-gray-400 truncate">{currentUser.email}</p>
                       )}
@@ -149,6 +195,21 @@ export default function Navbar() {
                     >
                       <Compass className="w-4 h-4 text-emerald-700" />
                       <span>رزروهای من</span>
+                    </Link>
+                    <Link
+                      href="/wishlist"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center justify-between px-3 py-2 text-xs font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-rose-500" />
+                        <span>علاقه‌مندی‌ها</span>
+                      </div>
+                      {wishlistCount > 0 && (
+                        <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {wishlistCount}
+                        </span>
+                      )}
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -173,13 +234,26 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <div className="flex sm:hidden items-center gap-2">
+            <Link
+              href="/wishlist"
+              className="p-2 text-rose-500 relative"
+              title="علاقه‌مندی‌ها"
+            >
+              <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-rose-500' : ''}`} />
+              {isMounted && wishlistCount > 0 && (
+                <span className="absolute top-0 right-0 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {isMounted && currentUser ? (
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-900 flex items-center gap-1.5"
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{currentUser.name}</span>
+                <span>{getDisplayName(currentUser)}</span>
               </button>
             ) : (
               <Link
@@ -210,10 +284,10 @@ export default function Navbar() {
                       className="w-8 h-8 rounded-full text-white flex items-center justify-center text-xs font-bold shadow"
                       style={{ background: 'hsl(var(--primary))' }}
                     >
-                      {currentUser.name.charAt(0)}
+                      {getDisplayName(currentUser).charAt(0)}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-gray-900">{currentUser.name}</p>
+                      <p className="text-xs font-bold text-gray-900">{getDisplayName(currentUser)}</p>
                       <p className="text-[10px] text-emerald-700 font-medium">وارد پنل کاربری شده‌اید</p>
                     </div>
                   </div>
@@ -241,6 +315,23 @@ export default function Navbar() {
                   </Link>
                 );
               })}
+
+              <Link
+                href="/wishlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-700 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Heart className="w-4 h-4 text-rose-500" />
+                  <span>علاقه‌مندی‌های من</span>
+                </div>
+                {wishlistCount > 0 && (
+                  <span className="bg-rose-100 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
               <div className="pt-3 mt-2 border-t border-gray-100 flex gap-2">
                 {isMounted && currentUser ? (
                   <button
