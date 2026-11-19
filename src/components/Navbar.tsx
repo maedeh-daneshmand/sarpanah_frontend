@@ -289,8 +289,8 @@ export default function Navbar() {
                       onClick={openProfileModal}
                       className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-50 rounded-xl transition-colors text-right"
                     >
-                      <Camera className="w-4 h-4 text-emerald-600" />
-                      <span>پروفایل و انتخاب عکس</span>
+                      <User className="w-4 h-4 text-emerald-600" />
+                      <span>پروفایل</span>
                     </button>
 
                     <Link
@@ -421,8 +421,8 @@ export default function Navbar() {
                         onClick={openProfileModal}
                         className="text-[10px] text-emerald-800 font-bold hover:underline flex items-center gap-1 mt-0.5"
                       >
-                        <Camera className="w-3 h-3" />
-                        <span>ویرایش پروفایل و عکس</span>
+                        <User className="w-3 h-3" />
+                        <span>پروفایل</span>
                       </button>
                     </div>
                   </div>
@@ -472,8 +472,8 @@ export default function Navbar() {
                   onClick={openProfileModal}
                   className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-emerald-800 hover:bg-emerald-50 transition-colors text-right"
                 >
-                  <Camera className="w-4 h-4 text-emerald-600" />
-                  <span>پروفایل و انتخاب تصویر مسافر</span>
+                  <User className="w-4 h-4 text-emerald-600" />
+                  <span>پروفایل</span>
                 </button>
               )}
 
@@ -521,7 +521,7 @@ export default function Navbar() {
                   <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
                     <User className="w-4 h-4" />
                   </div>
-                  <h3 className="text-base font-bold text-gray-900">تنظیمات پروفایل و تصویر کاربر</h3>
+                  <h3 className="text-base font-bold text-gray-900">پروفایل</h3>
                 </div>
                 <button
                   type="button"
