@@ -17,8 +17,10 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; role?: string; email?: string } | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 30);
     };
@@ -108,7 +110,7 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </Link>
 
-            {currentUser ? (
+            {isMounted && currentUser ? (
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -171,7 +173,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <div className="flex sm:hidden items-center gap-2">
-            {currentUser ? (
+            {isMounted && currentUser ? (
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-900 flex items-center gap-1.5"
@@ -201,7 +203,7 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="sm:hidden mt-2 p-4 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-100 animate-fade-up">
             <div className="flex flex-col gap-1">
-              {currentUser && (
+              {isMounted && currentUser && (
                 <div className="p-3 mb-2 bg-emerald-50/70 border border-emerald-100 rounded-2xl flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div
@@ -240,7 +242,7 @@ export default function Navbar() {
                 );
               })}
               <div className="pt-3 mt-2 border-t border-gray-100 flex gap-2">
-                {currentUser ? (
+                {isMounted && currentUser ? (
                   <button
                     onClick={() => {
                       handleLogout();

@@ -16,8 +16,10 @@ export default function HeroSection() {
   const [checkOut, setCheckOut] = useState<string>('');
   const [guests, setGuests] = useState<number>(2);
   const [currentUser, setCurrentUser] = useState<{ name: string; email?: string } | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const loadUser = () => {
       try {
         const saved = localStorage.getItem('sarpanah_user');
@@ -128,7 +130,7 @@ export default function HeroSection() {
 
           {/* Hero Center Text (Find Eco-Friendly Homes Easily - عکس اصلی) */}
           <div className="relative z-10 max-w-2xl my-8">
-            {currentUser && (
+            {isMounted && currentUser && (
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white text-xs sm:text-sm font-bold mb-3 shadow-md animate-fade-up">
                 <span>👋 {currentUser.name} عزیز، به پنل سرپناه خوش آمدید!</span>
               </div>
