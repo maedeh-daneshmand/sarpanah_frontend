@@ -418,14 +418,14 @@ export default function PropertyDetailPage({
                     امکانات ویژه برنامه‌ریزی و سفر گروهی در سرپناه
                   </h3>
                   <p className="text-xs text-gray-500">
-                    هماهنگی راحت‌تر، شفافیت مالی و تقسیم دانگ با همراهان سفر
+                    هماهنگی راحت‌تر، شفافیت مالی و محاسبه سهم هر مسافر با همراهان سفر
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-xs space-y-1">
-                  <div className="text-lg font-bold text-indigo-700">🏕️ تقسیم دانگ خودکار</div>
+                  <div className="text-lg font-bold text-indigo-700">🏕️ محاسبه خودکار سهم هزینه</div>
                   <p className="text-[11px] text-gray-600 leading-relaxed">
                     محاسبه سهم هر نفر از هزینه رزرو اقامتگاه و امکان پرداخت اشتراکی
                   </p>
@@ -564,7 +564,7 @@ export default function PropertyDetailPage({
                     <div className="flex items-center gap-2">
                       <span className="text-xl">🏕️</span>
                       <div>
-                        <h4 className="text-xs font-bold text-gray-900">سفر گروهی و تقسیم دانگ</h4>
+                        <h4 className="text-xs font-bold text-gray-900">سفر گروهی و تقسیم هزینه</h4>
                         <p className="text-[10px] text-gray-500">برنامه‌ریزی مشترک با دوستان</p>
                       </div>
                     </div>
@@ -584,7 +584,7 @@ export default function PropertyDetailPage({
                       <div className="text-[11px] text-indigo-950 font-semibold flex items-center justify-between">
                         <span>همسفران ({groupMembers.length} نفر):</span>
                         <span className="text-xs font-extrabold text-indigo-700 bg-white px-2 py-0.5 rounded-full shadow-xs border border-indigo-100">
-                          دانگ هر نفر: {Math.round(totalAmount / Math.max(1, groupMembers.length)).toLocaleString('fa-IR')} تومان
+                          سهم هر مسافر: {Math.round(totalAmount / Math.max(1, groupMembers.length)).toLocaleString('fa-IR')} تومان
                         </span>
                       </div>
 

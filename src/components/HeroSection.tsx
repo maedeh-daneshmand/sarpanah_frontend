@@ -131,11 +131,6 @@ export default function HeroSection() {
 
           {/* Hero Center Text (Find Eco-Friendly Homes Easily - عکس اصلی) */}
           <div className="relative z-10 max-w-2xl my-8">
-            {isMounted && currentUser && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white text-xs sm:text-sm font-bold mb-3 shadow-md animate-fade-up">
-                <span>👋 {currentUser.name} عزیز، به پنل سرپناه خوش آمدید!</span>
-              </div>
-            )}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-md mb-4">
               اقامتگاه‌های رویایی و بوم‌گردی در{' '}
               <span className="text-green-300 underline decoration-green-400/50 decoration-wavy decoration-2">

@@ -55,10 +55,10 @@ export default function GroupTravelSection() {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
             برنامه‌ریزی هوشمند، همسفری و{' '}
-            <span className="text-indigo-600">تقسیم دانگ سفر گروهی</span>
+            <span className="text-indigo-600">محاسبه هوشمند سهم هزینه سفر</span>
           </h2>
           <p className="text-gray-600 text-sm sm:text-base mt-3 leading-relaxed">
-            دیگر نیازی به محاسبات دستی و دغدغه جمع‌آوری دنگ نیست! با سرپناه دوستانتان را به سفر دعوت کنید، اقامتگاه دلخواه را انتخاب نمایید و هزینه‌ها را به آسانی و عادلانه بین همه تقسیم کنید.
+            دیگر نیازی به محاسبات دستی و دغدغه تقسیم هزینه‌ها نیست! با سرپناه دوستانتان را به سفر دعوت کنید، اقامتگاه دلخواه را انتخاب نمایید و هزینه‌ها را به آسانی و عادلانه بین همه مسافران تقسیم کنید.
           </p>
         </div>
 
@@ -74,10 +74,10 @@ export default function GroupTravelSection() {
                   <Calculator className="w-5 h-5 text-indigo-600" />
                 </div>
                 <h3 className="text-base font-bold text-gray-900">
-                  محاسبه‌گر اتوماتیک دانگ
+                  محاسبه‌گر هوشمند سهم هزینه
                 </h3>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  تقسیم آنی کل هزینه اقامت، نظافت و وعده‌ها بر اساس تعداد نفرات حاضر با لینک پرداخت مجزا برای هر همسفر.
+                  محاسبه عادلانه کل هزینه اقامت، نظافت و وعده‌ها بر اساس تعداد نفرات حاضر با لینک پرداخت مجزا برای هر همسفر.
                 </p>
               </div>
 
@@ -138,7 +138,7 @@ export default function GroupTravelSection() {
                   <span className="text-2xl">🏕️</span>
                   <div>
                     <h4 className="text-sm font-bold text-gray-900">
-                      شبیه‌ساز زنده تقسیم دانگ
+                      شبیه‌ساز هوشمند سهم هزینه سفر
                     </h4>
                     <span className="text-[10px] text-gray-500">
                       تست امکانات گروهی سرپناه
@@ -222,7 +222,7 @@ export default function GroupTravelSection() {
               {/* Output Result */}
               <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between shadow-md">
                 <div>
-                  <span className="text-[11px] block opacity-90">سهم دانگ هر نفر:</span>
+                  <span className="text-[11px] block opacity-90">سهم پرداختی هر مسافر:</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
                     <span className="text-2xl font-extrabold">
                       {perPerson.toLocaleString('fa-IR')}
