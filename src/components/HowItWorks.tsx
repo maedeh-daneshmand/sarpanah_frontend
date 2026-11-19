@@ -82,19 +82,19 @@ export default function HowItWorks() {
         </div>
 
         {/* CTA Bottom Banner (مطابق انتهای عکس امکانات سایت) */}
-        <div className="mt-16 card-clay p-8 sm:p-10 bg-gradient-to-l from-green-900 to-emerald-800 text-white shadow-2xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-16 card-clay p-8 sm:p-12 bg-gradient-to-l from-emerald-950 via-emerald-900 to-green-950 text-white shadow-2xl border border-emerald-700/40 relative overflow-hidden">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
             <div className="text-center md:text-right">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-2">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-3 drop-shadow-md">
                 آماده‌اید اقامتگاه رویایی‌تان را پیدا کنید؟
               </h3>
-              <p className="text-green-100 text-sm sm:text-base max-w-xl">
+              <p className="text-white font-extrabold text-sm sm:text-base leading-relaxed max-w-xl drop-shadow">
                 همین حالا به جمع هزاران مسافری بپیوندید که خاطره‌انگیزترین سفرهایشان را با سرپناه تجربه کردند.
               </p>
             </div>
             <Link
               href="/properties"
-              className="btn-3d-clay px-8 py-4 bg-white text-green-900 font-extrabold text-sm whitespace-nowrap shadow-xl hover:bg-gray-50 flex items-center gap-2"
+              className="btn-3d-clay px-8 py-4 bg-white text-emerald-950 hover:text-black font-extrabold text-sm whitespace-nowrap shadow-xl hover:bg-gray-50 flex items-center gap-2"
             >
               <span>شروع جستجو و رزرو</span>
               <ArrowLeft className="w-4 h-4" />
